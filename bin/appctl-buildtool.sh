@@ -58,17 +58,17 @@ function verify {
 function download {
 
     [[ "$(declare -p source)" =~ "$(declare -a)" ]] && SOURCES=${source[@]} || SOURCES=$source
-    for src in $SOURCES ; do
-        if echo $src | grep -Eq '::(http|https|ftp)://' ; then
-            filename=$(echo $src | awk -F '::' '{print $1}')
-            url=$(echo $src | awk -F '::' '{print $2}')
+    for s in $SOURCES ; do
+        if echo $s | grep -Eq '::(http|https|ftp)://' ; then
+            filename=$(echo $s | awk -F '::' '{print $1}')
+            url=$(echo $s | awk -F '::' '{print $2}')
         else
-            filename=$(basename $src)
-            url=$src
+            filename=$(basename $s)
+            url=$s
         fi
         WGET_ARGS=${WGET_ARGS:-"-c --passive-ftp --no-directories --tries=3 --waitretry=3"}
 
-        if [[ "$filename" != "$src" ]] ; then
+        if [[ "$filename" != "$s" ]] ; then
             if [[ ! -f "$SRC_DIR/$filename" ]] || [[ $REDOWNLOAD ]] ; then
                 [[ $REDOWNLOAD ]] && rm -f "$SRC_DIR/$filename.part"
                 
@@ -96,13 +96,13 @@ function prepare {
 
     [[ "$(declare -p source)" =~ "$(declare -a)" ]] && SOURCES=${source[@]} || SOURCES=$source
 
-    for src in $SOURCES ; do
-        if echo $src | grep -Eq '::(http|https|ftp)://'; then
-				filename=$SRC_DIR/$(echo $src | awk -F '::' '{print $1}')
-        elif echo $src | grep -Eq '^(http|https|ftp)://'; then
-            filename=$SRC_DIR/$(basename $src)
+    for s in $SOURCES ; do
+        if echo $s | grep -Eq '::(http|https|ftp)://'; then
+				filename=$SRC_DIR/$(echo $s | awk -F '::' '{print $1}')
+        elif echo $s | grep -Eq '^(http|https|ftp)://'; then
+            filename=$SRC_DIR/$(basename $s)
         else
-            filename=$PWD/$(basename $src)
+            filename=$PWD/$(basename $s)
         fi
         for NOEXT in $noextract; do
             if [ "$NOEXT" = "$(basename $filename)" ]; then
@@ -121,15 +121,15 @@ function prepare {
                     ;;
                 *)
                     INFO_MESG "Preparing $(basename $filename)"
-                    cp "$filename" $src
+                    cp "$filename" "$src"
                     ;;
             esac
             if [[ "$?" != 0 ]] ; then
                 ERR_EXIT $ERR_CODE_EXECUTION "failed"
             fi
         else
-            INFO_MESG "Preparing $(basename $filename)"
-            cp $filename $src
+            INFO_MESG "copying $(basename $filename)"
+            cp "$filename" "$src"
             if [[ "$?" != 0 ]] ; then
                 ERR_EXIT $ERR_CODE_EXECUTION "failed"
             fi
