@@ -1,0 +1,13 @@
+# Description: Test package
+# Depends on: a b c
+name=testpackage
+version=0.1
+release=0
+
+source=(index.html::https://google.com)
+
+build() {
+
+    mkdir -pv $pkg/usr
+    mv index.html $pkg/usr/
+}
