@@ -318,7 +318,7 @@ function Main {
     src=$WRK_DIR/$name/src
     pkg=$WRK_DIR/$name/pkg
 
-    pkgname=$name-$version-$release-$(uname -m).rlx.txz
+    pkgname=$name-$version-$release-$(uname -m).rlx
 
     for fnc in $EXEC_LIST ; do
         if [[ $(type -t $fnc) == "function" ]] ; then
