@@ -82,7 +82,7 @@ function ExecuteScript {
 
 function Main {
     for i in "$@" ; do
-        case "$1" in
+        case $i in
             -u|--update)
                 UPDATE=1
                 ;;
@@ -118,6 +118,7 @@ function Main {
 
             --root-dir=*)
                 ROOT_DIR="${i#*=}"
+                echo $ROOT_DIR
                 ;;
             
             --specs=*)
@@ -125,7 +126,7 @@ function Main {
                 ;;
 
             *.rlx)
-                PKGNAME="$(realpath $1)"
+                PKGNAME="$(realpath $i)"
                 ;;
             
             *)
@@ -135,30 +136,32 @@ function Main {
         esac
     done
 
-    TEMP_DIR="$ROOT_DIR/tmp/appctl/"
+    TEMP_DIR="$ROOT_DIR/tmp/app/"
     LOCK_FILE="$TEMP_DIR/db.lock"
-    DATA_DIR="$ROOT_DIR/var/lib/appctl/index/"
+    DATA_DIR="$ROOT_DIR/var/lib/app/index/"
 
+    mkdir -p $TEMP_DIR
 
     [[ ! -d "$DATA_DIR" ]] && ERR_EXIT $ERR_CODE_NOT_EXIST "appctl database directory not exist $DATA_DIR"
-    [[ "$(id -u)" = "0" ]] && ERR_EXIT $ERR_CODE_PERMISSION "$(basename $0): need super user access"
+    [[ "$(id -u)" = "0" ]] || ERR_EXIT $ERR_CODE_PERMISSION "$(basename $0): need super user access"
     [[ -f "$LOCK_FILE"  ]] && ERR_EXIT $ERR_CODE_EXECUTION "appctl database is locked by '$(cat $LOCK_FILE)'"
 
     BASENAME=$(basename $PKGNAME)
     [[ ! -e "$PKGNAME" ]] && ERR_EXIT $ERR_CODE_NOT_EXIST "$PKGNAME not exist"
 
-    tar -xJf $PKGNAME .data/info -C $TEMP_DIR || ERR_EXIT $ERR_CODE_EXECUTION "$PKGNAME is either corrupt or invalid rlx package"
+    tar -C $TEMP_DIR -xJf $PKGNAME .data/info || ERR_EXIT $ERR_CODE_EXECUTION "$PKGNAME is either corrupt or invalid rlx package"
     name=$(cat "$TEMP_DIR/.data/info" | grep ^name: | awk -F ': ' '{print $2}')
     version=$(cat "$TEMP_DIR/.data/info" | grep ^version: | awk -F ': ' '{print $2}')
     release=$(cat "$TEMP_DIR/.data/info" | grep ^release: | awk -F ': ' '{print $2}')
 
+    echo "$name-$version-$release"
     if IsInstalled "$name" ; then
         iver=$(grep ^version: $DATA_DIR/$name/info | awk -F ': ' '{print $2}')
         irel=$(grep ^release: $DATA_DIR/$name/info | awk -F ': ' '{print $2}')
         INSTLD=1
     fi
 
-    if [[ "$INSTLD" ]] && [[ -z "$UPDATE" ]] && [[ -z "$REINSTALL" ]] ; then
+    if [[ "$INSTLD" ]] && [[ "$UPDATE" != "1" ]] && [[ "$REINSTALL" != "1" ]] ; then
         echo "$name is already installed"
         cleanup
         exit 0
@@ -210,34 +213,33 @@ function Main {
         exclude_file="$exclude_file --exclude=$i"
     done
 
-    tar --keep-directory-symlink -pxJvf "$PKGNAME" -C "$ROOT_DIR"/ $exclude_file | while read -r line ; do
-        if [[ "$line" = "${line%.*}" ]] ; then
+    tar --keep-directory-symlink -pxvf "$PKGNAME" -C "$ROOT_DIR"/ $exclude_file | while read -r line ; do
+        if [[ "$line" = "${line%.*}.new" ]] ; then
             line="${line%.*}"
 
             if [[ "$UPDATE" ]] || [[ "$REINSTALL" ]] ; then
                 if [[ ! -e "$ROOT_DIR/$line" ]] || [[ "$NO_BACKUP" ]] ; then
-                    mv "$ROOT_DIR/"$line{.new,}
+                    mv "$ROOT_DIR/$line.new" "$ROOT_DIR/$line.new"
                 fi
             else
-                mv "$ROOT_DIR/$line{.new,}"
+                mv "$ROOT_DIR/$line.new" "$ROOT_DIR/$line.new"
             fi
         fi
         [[ "$VERBOSE" ]] && echo "extracted $line"
         echo "$line" >> $TEMP_DIR/$name.instld
     done
 
-
     if [[ "$UPDATE" ]] || [[ "$REINSTALL" ]] ; then
         rmlst_file="$TEMP_DIR/$name.rmlst_file"
         rmlst_dir="$TEMP_DIR/$name.rmlst_dir"
         rsrv_dir="$TEMP_DIR/$name.rsrv_dir"
         rmlst_all="$TEMP_DIR/$name.rmlst_all"
-        grep '/$' $DATA_DIR/*/files \
-            | grep -v $DATA_DIR/$name/.files \
-            | awk -F : '{print $2}'
-            | sort \
+        grep '/$' $DATA_DIR/*/files             \
+            | grep -v $DATA_DIR/$name/.files    \
+            | awk -F : '{print $2}'             \
+            | sort                              \
             | uniq > $rsrv_dir
-        grep -Fxv -f "$TEMP_DIR/$name.instld" "$DATA_DIR/*/files" > $rmlst_all
+        grep -Fxv -f "$TEMP_DIR/$name.instld" $DATA_DIR/*/files > $rmlst_all
         grep -v '/$' "$rmlst_all" | tac > "$rmlst_file"
         grep -Fxv -f "$rsrv_dir" "$rmlst_all" | grep '/$' | tac > "$rmlst_dir"
 
@@ -254,6 +256,8 @@ function Main {
     tar -xJf $PKGNAME .data -C $TEMP_DIR
 
     mv $TEMP_DIR/.data $DATA_DIR/$name
+    
+    install -m644 $TEMP_DIR/$name.instld $DATA_DIR/$name/files
 
     echo -e "\ninstalled: $(date +'%I:%M:%S %p %D:%m:%Y')" >> $DATA_DIR/$name/info
 
