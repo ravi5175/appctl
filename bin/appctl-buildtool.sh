@@ -193,11 +193,11 @@ function gen_appinfo {
 
     cd $(dirname $RCP_FILE) >/dev/null
 
+    mkdir -p $pkg/.data/
+    
     for i in install update remove usrgrp data ; do
         [[ -f $i ]] && cp $i $pkg/.data/
     done
-
-    mkdir -p $pkg/.data/
 
     echo "name: $name
 version: $version
