@@ -199,8 +199,7 @@ function gen_appinfo {
 
     mkdir -p $pkg/.data/
 
-    echo "
-name: $name
+    echo "name: $name
 version: $version
 release: $release
 description: $desc
@@ -226,6 +225,8 @@ function package {
         mv $f $f.update
     done
 
+    echo "size: $(du -hs .)" >> $pkg/.data/info
+    echo "build: $(date +'%I:%M:%S %P %d-%m-%y')" >> $pkg/.data/info
     tar -cJf $PKG_DIR/$pkgname * .data || {
         #rm -f $PKG_DIR/$pkgname
         ERR_EXIT $ERR_CODE_EXECUTION "failed to compress $name"
