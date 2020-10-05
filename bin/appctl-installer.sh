@@ -25,6 +25,7 @@ ERR_EXIT() {
 function cleanup {
     [[ ! -z "$TEMP_DIR"  ]] && [[ -d "$TEMP_DIR"  ]] && rm -r "$TEMP_DIR"
     [[ ! -z "$LOCK_FILE" ]] && [[ -e "$LOCK_FILE" ]] && rm -f "$LOCK_FILE"
+    [[ -f .data/info ]] && rm -r .data
     return 0
 }
 
@@ -65,18 +66,18 @@ function IsInstalled {
 }
 
 function ExecuteScript {
+    [[ ! -d "$TEMP_DIR" ]] && mkdir -p "$TEMP_DIR"
     if grep -qx .data/$1 $TEMP_DIR/$name.files ; then
-        TMP_SCRIPT="$TEMP_DIR/$name.$1"
-        tar -xJf "$PKGNAME" .data/$1 -O > "$TEMP_SCRIPT"
+        tar -C "$TEMP_DIR/" -xJf "$PKGNAME" .data/$1
         [[ "$ROOT_DIR" = "/" ]] && EXECUTOR="bash" || EXECUTOR="rlx-chroot $ROOT_DIR"
         
         INFO_MESG "Executing $2 $1 script"
         
-        (cd $ROOT_DIR \
-            $EXECUTOR "$TMP_SCRIPT" "$2" "$name" "$version"
+        (cd "$ROOT_DIR/"
+            $EXECUTOR "$TEMP_DIR/.data/$1" "$2" "$name" "$version"
         )
 
-        rm -f $TMP_SCRIPT
+        rm -f "$TEMP_DIR/.data/$1"
     fi
 }
 
@@ -275,3 +276,5 @@ function Main {
 }
 
 Main $@
+
+cleanup
