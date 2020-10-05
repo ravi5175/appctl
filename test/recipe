@@ -4,7 +4,7 @@ name=testpackage
 version=0.1
 release=0
 
-source=(index.html::https://google.com)
+source=(test_buildtool.sh)
 
 build() {
 

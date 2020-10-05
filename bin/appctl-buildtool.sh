@@ -81,9 +81,10 @@ function download {
                 fi
             fi
         else
-            [[ ! -f $filename ]] && ERR_EXIT $ERR_CODE_NOT_EXIST "source file $SRC_DIR/$filename is missing"
+            [[ ! -f "$filename" ]] && ERR_EXIT $ERR_CODE_NOT_EXIST "source file $SRC_DIR/$filename is missing"
         fi         
     done
+    return 0
 }
 
 function prepare {
