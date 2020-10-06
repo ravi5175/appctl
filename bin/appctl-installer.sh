@@ -57,7 +57,8 @@ Options:
 
           --no-backup               skip backup when upgrading app
           --root-dir=<path>         install to custom root directory
-          --specs=<path>            use custom specifications                  
+          --specs=<path>            use custom specifications
+          --print-data-dir          print database directory
 EOF
 }
 
@@ -124,6 +125,11 @@ function Main {
             
             --specs=*)
                 SPECS="${i#*=}"
+                ;;
+
+            --print-data-dir)
+                echo "$DATA_DIR"
+                exit 0
                 ;;
 
             *.rlx)

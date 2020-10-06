@@ -22,6 +22,12 @@ ERR_EXIT() {
     exit $err_code
 }
 
+interrupted() {
+    echo
+    cleanup
+    exit 5
+}
+
 function cleanup {
     [[ -z $NO_CLEAN ]] && [[ ! -z "$name" ]] && [[ -d "$WRK_DIR/$name" ]] && rm -rf "$WRK_DIR/$name"
     return 0
