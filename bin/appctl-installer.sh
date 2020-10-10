@@ -143,10 +143,6 @@ function Main {
         esac
     done
 
-    TEMP_DIR="$ROOT_DIR/tmp/app/"
-    LOCK_FILE="$TEMP_DIR/db.lock"
-    DATA_DIR="$ROOT_DIR/var/lib/app/index/"
-
     mkdir -p $TEMP_DIR
 
     [[ ! -d "$DATA_DIR" ]] && ERR_EXIT $ERR_CODE_NOT_EXIST "appctl database directory not exist $DATA_DIR"
@@ -280,6 +276,10 @@ function Main {
         $ROOT_DIR/sbin/ldconfig -r "$ROOT_DIR/"
     fi
 }
+
+TEMP_DIR="$ROOT_DIR/tmp/app/"
+LOCK_FILE="$TEMP_DIR/db.lock"
+DATA_DIR="$ROOT_DIR/var/lib/app/index/"
 
 Main $@
 

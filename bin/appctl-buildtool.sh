@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/tools/bin/bash
 
 ERR_CODE_NOT_EXIST=1500
 ERR_CODE_PERMISSION=1501
@@ -20,12 +20,6 @@ ERR_EXIT() {
     cleanup
     ERR_MESG "$@"
     exit $err_code
-}
-
-interrupted() {
-    echo
-    cleanup
-    exit 5
 }
 
 function cleanup {
@@ -72,7 +66,7 @@ function download {
             filename=$(basename $s)
             url=$s
         fi
-        WGET_ARGS=${WGET_ARGS:-"-c --passive-ftp --no-directories --tries=3 --waitretry=3"}
+        WGET_ARGS=${WGET_ARGS:-"-c --passive-ftp --no-directories --tries=3 --waitretry=3 --no-check-certificate"}
 
         if [[ "$filename" != "$s" ]] ; then
             if [[ ! -f "$SRC_DIR/$filename" ]] || [[ $REDOWNLOAD ]] ; then
@@ -87,7 +81,7 @@ function download {
                 fi
             fi
         else
-            [[ ! -f "$filename" ]] && ERR_EXIT $ERR_CODE_NOT_EXIST "source file $SRC_DIR/$filename is missing"
+            [[ ! -f $filename ]] && ERR_EXIT $ERR_CODE_NOT_EXIST "source file $SRC_DIR/$filename is missing"
         fi         
     done
     return 0
@@ -123,8 +117,14 @@ function prepare {
         if [[ "$filename" != "$file" ]] && [[ "$nxt" != 1 ]] ; then
             case $filename in
                 *.tar|*.tar.*|*.tgz|*.tbz2|*.txz|*.zip|*.rpm)
+                    case $filename in
+                    	*bz2|*bzip2)   CMS=j ;;
+                    	*gz)    CMS=z ;;
+                    	*xz)    CMS=J ;;
+                    	
+                    esac
                     INFO_MESG "Extracting $(basename $filename)"
-                    tar -p -o -C $src -xf $filename
+                    tar -C $src -${CMS} -xf $filename
                     ;;
                 *)
                     INFO_MESG "Preparing $(basename $filename)"
@@ -160,27 +160,35 @@ function builder {
 
 }
 
-function strip {
+function strip__ {
+    INFO_MESG "cleaning $name"
     cd $pkg >/dev/null
     [[ $nostrip_empty   ]] || find . -type d -empty -delete
     [[ $nostrip_libtool ]] || find . ! -type d -name "*.la" -delete
     
-    [[ -z "$nostrip" ]] && FILTER="cat" || {
+    if [[ -z "$nostrip" ]] ; then
+	FILTER="cat"
+    else
         for i in $nostrip ; do
             xstrip="$xstrip -e $i"
         done
         FILTER="grep -v $xstrip"
-    }
-
+    fi
+    
+    INFO_MESG "stripping $name"
     find . -type f -printf "%P\n" 2>/dev/null | $FILTER | while read -r binary ; do
 		case "$(file -bi "$binary")" in
 			*application/x-sharedlib*)  # Libraries (.so)
+				echo "stripping shared library"
 				${CROSS_COMPILE}strip --strip-unneeded "$binary" 2>/dev/null ;;
 			*application/x-pie-executable*)  # Libraries (.so)
+				echo "stripping pie executable"
 				${CROSS_COMPILE}strip --strip-unneeded "$binary" 2>/dev/null ;;
 			*application/x-archive*)    # Libraries (.a)
+				echo "stripping library archive"
 				${CROSS_COMPILE}strip --strip-debug "$binary" 2>/dev/null ;;
 			*application/x-object*)
+				echo "stripping object"
 				case "$binary" in
 					*.ko)                   # Kernel module
 						${CROSS_COMPILE}strip --strip-unneeded "$binary" 2>/dev/null ;;
@@ -188,8 +196,11 @@ function strip {
 						continue;;
 				esac;;
 			*application/x-executable*) # Binaries
-				${CROSS_COMPILE}strip --strip-all "$binary" 2>/dev/null ;;
+				echo "stripping executable"
+				strip --strip-all "$binary" 2>/dev/null 
+				;;
 			*)
+				echo "continue"
 				continue ;;
 		esac
 	done
@@ -197,7 +208,7 @@ function strip {
 }
 
 function gen_appinfo {
-
+    INFO_MESG "generating info"
     cd $(dirname $RCP_FILE) >/dev/null
 
     mkdir -p $pkg/.data/
@@ -350,7 +361,7 @@ SPEC_FILE='/rlx/conf/app/buildtool.in'
 SRC_DIR='/rlx/cache/app/sources'
 PKG_DIR='/rlx/cache/app/packages'
 WRK_DIR='/rlx/cache/app/work'
-EXEC_LIST='verify download prepare builder strip gen_appinfo package cleanup'
+EXEC_LIST='verify download prepare builder strip__ gen_appinfo package cleanup'
 RCP_FILE=$PWD/recipe
 
 Main $@

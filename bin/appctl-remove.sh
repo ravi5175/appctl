@@ -31,6 +31,7 @@ function cleanup {
 }
 
 function IsInstalled {
+    echo "$DATA_DIR/$1"
     [[ -f "$DATA_DIR/$1/info" ]] && return 0 || return 1    
 }
 
@@ -94,7 +95,7 @@ function Main {
     done
 
     TEMP_DIR="$ROOT_DIR/tmp/appctl"
-    mkdir -pv "$TEMP_DIR"
+    mkdir -p "$TEMP_DIR"
     DATA_DIR="$ROOT_DIR/$(appctl-installer --print-data-dir)"
     LOCK_FILE="$TEMP_DIR/db.lock"
     
@@ -109,9 +110,11 @@ function Main {
     fi
 
 
-    name=$(grep ^name $DATA_DIR/$APP_NAME/info | awk -F : '{print $2}')
-    version=$(grep ^name $DATA_DIR/$APP_NAME/info | awk -F : '{print $2}')
-    release=$(grep ^name $DATA_DIR/$APP_NAME/info | awk -F : '{print $2}')
+    name=$(grep ^name $DATA_DIR/$APP_NAME/info | awk -F ': ' '{print $2}')
+    version=$(grep ^name $DATA_DIR/$APP_NAME/info | awk -F ': ' '{print $2}')
+    release=$(grep ^name $DATA_DIR/$APP_NAME/info | awk -F ': ' '{print $2}')
+
+    echo "removing $name"
 
     rsrv="$TEMP_DIR/$name.rsrv"
     rmv="$TEMP_DIR/$name.rpv"
@@ -159,3 +162,5 @@ function Main {
 }
 
 Main $@
+
+cleanup
