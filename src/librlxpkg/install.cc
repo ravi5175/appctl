@@ -10,9 +10,9 @@ librlxpkg::obj::Install(conf::obj& config, bool debug)
         __name,"-",__ver,"-",__rel,"-x86_64.rlx"
     );
 
-    std::string pkgdir = config.get("dir","packages","/var/cache/packages/"),    
+    std::string pkgdir = config.get("dir","packages",PACKAGES_DIR),    
     pkgfile = io::sprint(pkgdir,"/",pkgname),
-    exc = config.get("dir","libexec","/usr/lib/appctl/exec/"),
+    exc = config.get("dir","libexec",LIBEXEC_DIR),
     appctl_install_sh = exc + "/appctl-installer.sh",
 
     appctl_buildtool_sh = exc + "/appctl-buildtool.sh";
@@ -39,10 +39,10 @@ librlxpkg::obj::Install(conf::obj& config, bool debug)
         if (debug) DEBUG("-- buildtool output -----------------");
         int ret = system(
             io::sprint(appctl_buildtool_sh, 
-                " --specs=",config.get("default","specs","/usr/libexec/appctl/specs.sh"),
-                " --src-dir=",config.get("dir","sources","/var/cache/appctl/sources"),
-                " --pkg-dir=",config.get("dir","packages","/var/cache/appctl/packages"),
-                " --wrk-dir=", config.get("dir","work","/var/cache/appctl/work")
+                " --specs=",config.get("default","specs",SPEC_FILE),
+                " --src-dir=",config.get("dir","sources",SOURCE_DIR),
+                " --pkg-dir=",config.get("dir","packages",PACKAGES_DIR),
+                " --wrk-dir=", config.get("dir","work",WORK_DIR)
             ).c_str()
         );
         if (debug) DEBUG("------------------------------------")
@@ -66,9 +66,9 @@ librlxpkg::obj::Install(conf::obj& config, bool debug)
 
     int ret = system(
         io::sprint(appctl_install_sh, 
-            " --specs=",config.get("default","specs","/usr/libexec/appctl/specs.sh"),
-            " --root-dir=",config.get("dir","roots","/"),
-            " --data-dir=",config.get("dir","data","/var/lib/app/index"),
+            " --specs=",config.get("default","specs",SPEC_FILE),
+            " --root-dir=",config.get("dir","roots",ROOT_DIR),
+            " --data-dir=",config.get("dir","data",DATA_DIR),
             " ", pkgfile, (debug ? " " : " &>/dev/null")
         ).c_str()
     );

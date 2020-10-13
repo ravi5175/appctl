@@ -9,7 +9,7 @@ ctl::obj::list_files(app_db_t& app_data, bool debug)
     std::vector<std::string> files_list;
     if (!app_data.installed) return files_list;
 
-    auto files_f = config.get("dir","data","/var/lib/app/index") + app_data.name + "/files";
+    auto files_f = config.get("dir","data",DATA_DIR) + app_data.name + "/files";
 
     std::ifstream fptr(files_f);
     if (!fptr.good()) {
@@ -28,7 +28,7 @@ ctl::obj::list_files(app_db_t& app_data, bool debug)
 app_db_t
 ctl::obj::is_installed(const std::string& app_name, bool debug)
 {
-    auto data_dir = config.get("dir","data","/var/lib/app/index");
+    auto data_dir = config.get("dir","data",DATA_DIR);
     DEBUG("checking in ",data_dir);
 
     auto app_data_dir = data_dir+"/"+app_name;
@@ -85,12 +85,18 @@ ctl::obj::is_installed(const std::string& app_name, bool debug)
 void
 ctl::obj::load_modules()
 {
+    bool found = false;
     for(auto a : config.sections) {
         if (a.first == "modules") {
             for(auto m : a.second) {
                 load_modules(m.first, m.second);
             }
+            found = true;
+            break;
         }
+    }
+    if (!found) {
+        load_modules("recipe",MODULES_RECIPE);
     }
 }
 

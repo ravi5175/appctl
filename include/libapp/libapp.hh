@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <rlx/rlx.hh>
+#include "../default.hh"
 
 #define DEBUG(...) if (debug) io::colored_title(color::blue,"DEBUG",__VA_ARGS__);
 

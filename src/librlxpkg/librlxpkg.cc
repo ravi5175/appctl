@@ -9,7 +9,7 @@ using namespace librlxpkg;
 std::string
 obj::get_recipe_path(const std::string& a)
 {
-    std::string rcppath = config.get("dir","recipes","/var/cache/recipes");
+    std::string rcppath = config.get("dir","recipes",RECIPES_DIR);
     std::stringstream ss(config.get("default","repo","core"));
     std::string repo;
     while (ss >> repo) {

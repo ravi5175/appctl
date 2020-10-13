@@ -1,6 +1,5 @@
 #include <libapp/libapp.hh>
-
-#define CONFIG_FILE "/etc/appctl.conf"
+#include <default.hh>
 
 #define DETAIL(x,z) io::colored_title(color::cyan, (x), (z))
 

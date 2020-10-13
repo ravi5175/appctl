@@ -3,6 +3,7 @@
 
 #include <libapp/libapp.hh>
 #include <rlx/rlx.hh>
+#include "../default.hh"
 
 using namespace rlx;
 
