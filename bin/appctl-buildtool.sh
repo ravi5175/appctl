@@ -1,4 +1,4 @@
-#!/tools/bin/bash
+#!/bin/bash
 
 ERR_CODE_NOT_EXIST=1500
 ERR_CODE_PERMISSION=1501
@@ -56,8 +56,7 @@ function verify {
 }
 
 function download {
-
-    [[ "$(declare -p source)" =~ "$(declare -a)" ]] && SOURCES=${source[@]} || SOURCES=$source
+    
     for s in $SOURCES ; do
         if echo $s | grep -Eq '::(http|https|ftp)://' ; then
             filename=$(echo $s | awk -F '::' '{print $1}')
@@ -94,8 +93,6 @@ function prepare {
     [[ -d $WRK_DIR/$name ]] && rm -r $WRK_DIR/$name
 
     mkdir -p $src $pkg
-
-    [[ "$(declare -p source)" =~ "$(declare -a)" ]] && SOURCES=${source[@]} || SOURCES=$source
 
     for s in $SOURCES ; do
         if echo $s | grep -Eq '::(http|https|ftp)://'; then
@@ -334,6 +331,11 @@ function Main {
     desc=$(cat $RCP_FILE | grep '# Description:' | sed 's|# Description: ||g')
     deps=$(cat $RCP_FILE | grep '# Depends on:' | sed 's|# Depends on: ||g')
 
+    if [[ ! -z $DEBUG ]] ; then
+        echo "Name:    $name"
+        echo "Version: $version"
+        echo "Release: $release"
+    fi
     src=$WRK_DIR/$name/src
     pkg=$WRK_DIR/$name/pkg
 

@@ -120,11 +120,14 @@ function Main {
 
             --root-dir=*)
                 ROOT_DIR="${i#*=}"
-                echo $ROOT_DIR
                 ;;
             
             --specs=*)
                 SPECS="${i#*=}"
+                ;;
+
+            --data-dir=*)
+                DATA_DIR="${i#*=}"
                 ;;
 
             --print-data-dir)
@@ -142,7 +145,11 @@ function Main {
 
         esac
     done
-
+    
+    TEMP_DIR="$ROOT_DIR/tmp/app/"
+    LOCK_FILE="$TEMP_DIR/db.lock"
+    DATA_DIR=${DATA_DIR:-"$ROOT_DIR/var/lib/app/index/"}
+    
     mkdir -p $TEMP_DIR
 
     [[ ! -d "$DATA_DIR" ]] && ERR_EXIT $ERR_CODE_NOT_EXIST "appctl database directory not exist $DATA_DIR"
@@ -167,7 +174,7 @@ function Main {
     if [[ "$INSTLD" ]] && [[ "$UPDATE" != "1" ]] && [[ "$REINSTALL" != "1" ]] ; then
         echo "$name is already installed"
         cleanup
-        exit 0
+        exit 112
     fi
 
     if [[ "$UPDATE" ]] || [[ "$REINSTALL" ]] ; then
@@ -277,9 +284,6 @@ function Main {
     fi
 }
 
-TEMP_DIR="$ROOT_DIR/tmp/app/"
-LOCK_FILE="$TEMP_DIR/db.lock"
-DATA_DIR="$ROOT_DIR/var/lib/app/index/"
 
 Main $@
 
