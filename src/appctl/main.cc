@@ -5,6 +5,18 @@
 #define DETAIL(x,z) io::colored_title(color::cyan, (x), (z))
 
 int
+remove_func(cli::data_t& data)
+{
+    if (data.args.size() == 0) {
+        io::error("specify app name");
+        return 1;
+    }
+    std::string app_name = data.args[0];
+    libapp::ctl::obj appctl(data.value_of("config",CONFIG_FILE));
+    auto e = appctl.Remove(app_name, data.is_flag_set("debug"));
+    return e.status();
+}
+int
 cal_dep_func(cli::data_t& data)
 {
     if (data.args.size() == 0) {
@@ -105,6 +117,15 @@ install_func(cli::data_t& data)
 
     libapp::ctl::obj appctl(data.value_of("config",CONFIG_FILE));
 
+    appctl.reinstall = data.is_flag_set("reinstall");
+    appctl.redownload = data.is_flag_set("redownload");
+    appctl.update = data.is_flag_set("update");
+    appctl.repack = data.is_flag_set("repack");
+
+    appctl.skip_dep = data.is_flag_set("skip-dep");
+    appctl.skip_post = data.is_flag_set("skip-post");
+    appctl.skip_pre = data.is_flag_set("skip-pre");
+    
     std::string app_name = data.args[0];
     auto e = appctl.Install(app_name,data.is_flag_set("debug"));
     if (e.status() != 0) {
@@ -180,7 +201,18 @@ int main(int ac, char** av) {
            .desc = "print configuration file",
            .usage = "section.variable",
            .func = verify_config_func
+       })
+       .sub(cli::sub_t{
+           .id = "remove",
+           .desc = "remove app from root directory",
+           .usage = "app-name",
+           .func = remove_func
        });
 
-    return app.run().status();    
+    try {
+        return app.run().status();
+    } catch(err::obj e) {
+        io::error(e.mesg());
+    }
+    return -1;
 }

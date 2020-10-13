@@ -56,7 +56,7 @@ Options:
     -v, --verbose       verbosly print debug messages
         --skip-pre      skip the pre remove script
         --skip-post     skip the post remove script
-        --root=<path>   remove packages from custom root directory                
+        --root-dir=<path>   remove packages from custom root directory                
 EOF
 }
 
@@ -80,8 +80,12 @@ function Main {
                 SKIP_POST=1
                 ;;
 
-            --root=*)
+            --root-dir=*)
                 ROOT_DIR="${i#*=}"
+                ;;
+
+            --data-dir=*)
+                DATA_DIR="${i#*=}"
                 ;;
 
             -*)
@@ -96,7 +100,7 @@ function Main {
 
     TEMP_DIR="$ROOT_DIR/tmp/appctl"
     mkdir -p "$TEMP_DIR"
-    DATA_DIR="$ROOT_DIR/$(appctl-installer --print-data-dir)"
+    DATA_DIR=${DATA_DIR:-"$ROOT_DIR/var/lib/app/index"}
     LOCK_FILE="$TEMP_DIR/db.lock"
     
     [[ "$(id -u)" != "0" ]] && ERR_EXIT $ERR_CODE_PERMISSION "need superuser access"

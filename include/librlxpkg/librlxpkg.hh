@@ -9,13 +9,20 @@ using namespace rlx;
 namespace librlxpkg {
     class obj : public libapp::obj {
         private:
+            conf::obj config;
             std::string __rcp_file;
         public:
-            obj(const std::string&);
+            obj(conf::obj);
+
+            void load(const std::string&);
 
             std::string type() { return "recipe"; }
             err::obj Install(conf::obj& config, bool debug = false);
             err::obj Remove(conf::obj& config, bool debug = false);
+
+            std::string get_recipe_path(const std::string&);
+
+            bool __can_handle(const std::string&);
     };
 }
 

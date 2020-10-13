@@ -30,12 +30,15 @@ namespace libapp {
             obj() {}
             virtual ~obj() {}
             virtual std::string name() { return __name;}
+            virtual void load(const std::string&) {}
             virtual std::string ver()  { return __ver; }
             virtual std::string desc() { return __desc;}
             virtual int         rel()  { return __rel; }
             virtual std::vector<std::string> depends() {return __depends;}
 
             virtual std::string type() {return "invalid";}
+
+            virtual bool __can_handle(const std::string&) {return false;}
 
             virtual rlx::err::obj Install(conf::obj & config, bool debug) { return err::obj(0x1245, "not implemented");}
             virtual rlx::err::obj Remove(conf::obj& config, bool debug) { return err::obj(0x1245, "not implemented");}
@@ -48,6 +51,8 @@ namespace libapp {
         class obj {
             conf::obj config;
         public:
+            bool reinstall, redownload, repack, update, skip_dep, skip_pre, skip_post;
+            std::string flags;
             obj(const std::string& config) 
             : config(config)
             {
@@ -55,7 +60,7 @@ namespace libapp {
             }
             libapp::obj* get_app(const std::string& a, bool debug = false);
 
-            typedef libapp::obj* (*module_t)(std::string);
+            typedef libapp::obj* (*module_t)(conf::obj);
 
             std::map<std::string, module_t> modules;
 
@@ -64,6 +69,7 @@ namespace libapp {
 
             err::obj Install(const std::string & app, bool debug);
             app_db_t is_installed(const std::string& a, bool debug);
+            err::obj Remove(const std::string& app, bool debug);
 
             app_list_t cal_dep(libapp::obj* app, bool debug);
             std::vector<std::string> list_files(app_db_t& app_data, bool debug);

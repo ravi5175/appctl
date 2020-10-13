@@ -97,15 +97,17 @@ ctl::obj::load_modules()
 void
 ctl::obj::load_modules(std::string id, std::string path)
 {
-    void *handler = dlopen(path.c_str(), RTLD_LAZY);
+    void *handler = dlopen(path.c_str(), RTLD_LAZY | RTLD_GLOBAL);
     
     if (handler == nullptr) {
         io::error("failed to load module ", id, " from ", path);
+        io::error(dlerror());
         return;
     }
     module_t mod = (module_t) dlsym(handler, "module");
     if (mod == nullptr) {
         io::error("invalid module ", id, " from ", path);
+        io::error(dlerror());
         return;
     }
 

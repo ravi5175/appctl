@@ -1,11 +1,52 @@
 #include <librlxpkg/librlxpkg.hh>
 #include <fstream>
+#include <unistd.h>
+#include <cstring>
+#include <rlx/io.hh>
 
 using namespace librlxpkg;
 
-obj::obj(const std::string& __rcp_file)
-: __rcp_file(__rcp_file)
+std::string
+obj::get_recipe_path(const std::string& a)
 {
+    std::string rcppath = config.get("dir","recipes","/var/cache/recipes");
+    std::stringstream ss(config.get("default","repo","core"));
+    std::string repo;
+    while (ss >> repo) {
+        std::string rcp_ = rcppath + "/" + repo + "/" + a + "/recipe";
+        if (fs::is_exist(rcp_)) {
+            return rcp_;
+        }
+    }
+
+    return "";
+}
+bool
+obj::__can_handle(const std::string& app_id)
+{
+    if (fs::is_exist(app_id) && !(std::strcmp(basename(app_id.c_str()),"recipe"))) {
+        return true;
+    }
+
+    return (fs::is_exist(get_recipe_path(app_id)));
+}
+
+obj::obj(conf::obj __c)
+: config(__c)
+{
+
+}
+
+void
+obj::load(const std::string& __r)
+{
+    __rcp_file = __r;
+    if (!fs::is_exist(__rcp_file)) {
+        auto rcp_path = get_recipe_path(__rcp_file);
+        if (fs::is_exist(rcp_path)) {
+            __rcp_file = rcp_path;
+        }
+    } 
     std::ifstream fptr(__rcp_file);
     if (!fptr.good()) {
         throw err::obj(err::file_missing, __rcp_file);
@@ -40,10 +81,9 @@ obj::obj(const std::string& __rcp_file)
             }
         }
     }
-
 }
 
-extern "C" obj* module(std::string __a)
+extern "C" obj* module(conf::obj __c)
 {
-    return new obj(__a);
+    return new obj(__c);
 }

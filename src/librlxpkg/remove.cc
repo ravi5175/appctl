@@ -17,7 +17,8 @@ obj::Remove(conf::obj& conf, bool debug)
 
     int ret = system(
         io::sprint(appctl_remove_sh, 
-            " --root-dir=",conf.get("default","specs","/usr/libexec/appctl/specs.sh")
+            " --root-dir=",conf.get("dir","roots","/"),
+            " ",__name
         ).c_str()
     );
 

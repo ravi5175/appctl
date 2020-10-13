@@ -57,7 +57,7 @@ function verify {
 
 function download {
     
-    for s in $SOURCES ; do
+    for s in $source ; do
         if echo $s | grep -Eq '::(http|https|ftp)://' ; then
             filename=$(echo $s | awk -F '::' '{print $1}')
             url=$(echo $s | awk -F '::' '{print $2}')
@@ -94,7 +94,7 @@ function prepare {
 
     mkdir -p $src $pkg
 
-    for s in $SOURCES ; do
+    for s in $source ; do
         if echo $s | grep -Eq '::(http|https|ftp)://'; then
 				filename=$SRC_DIR/$(echo $s | awk -F '::' '{print $1}')
         elif echo $s | grep -Eq '^(http|https|ftp)://'; then
@@ -176,16 +176,12 @@ function strip__ {
     find . -type f -printf "%P\n" 2>/dev/null | $FILTER | while read -r binary ; do
 		case "$(file -bi "$binary")" in
 			*application/x-sharedlib*)  # Libraries (.so)
-				echo "stripping shared library"
 				${CROSS_COMPILE}strip --strip-unneeded "$binary" 2>/dev/null ;;
 			*application/x-pie-executable*)  # Libraries (.so)
-				echo "stripping pie executable"
 				${CROSS_COMPILE}strip --strip-unneeded "$binary" 2>/dev/null ;;
 			*application/x-archive*)    # Libraries (.a)
-				echo "stripping library archive"
 				${CROSS_COMPILE}strip --strip-debug "$binary" 2>/dev/null ;;
 			*application/x-object*)
-				echo "stripping object"
 				case "$binary" in
 					*.ko)                   # Kernel module
 						${CROSS_COMPILE}strip --strip-unneeded "$binary" 2>/dev/null ;;
@@ -193,11 +189,9 @@ function strip__ {
 						continue;;
 				esac;;
 			*application/x-executable*) # Binaries
-				echo "stripping executable"
 				strip --strip-all "$binary" 2>/dev/null 
 				;;
 			*)
-				echo "continue"
 				continue ;;
 		esac
 	done
