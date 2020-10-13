@@ -1,6 +1,6 @@
 #include <libapp/libapp.hh>
 
-#define CONFIG_FILE "./appctl.conf"
+#define CONFIG_FILE "/etc/appctl.conf"
 
 #define DETAIL(x,z) io::colored_title(color::cyan, (x), (z))
 
@@ -125,7 +125,7 @@ install_func(cli::data_t& data)
     appctl.skip_dep = data.is_flag_set("skip-dep");
     appctl.skip_post = data.is_flag_set("skip-post");
     appctl.skip_pre = data.is_flag_set("skip-pre");
-    
+
     std::string app_name = data.args[0];
     auto e = appctl.Install(app_name,data.is_flag_set("debug"));
     if (e.status() != 0) {
