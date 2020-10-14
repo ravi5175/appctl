@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <rlx/io.hh>
+#include <libgen.h>
 
 using namespace librlxpkg;
 
