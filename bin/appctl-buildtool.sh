@@ -27,6 +27,11 @@ function cleanup {
     return 0
 }
 
+interrupted() {
+    echo
+    ERR_EXIT $ERR_CODE_EXECUTION ""
+}
+
 function checkDir {
     for i in "$@" ; do
         if [[ ! -d $i ]] ; then
@@ -149,11 +154,13 @@ function builder {
     INFO_MESG "compiling $name-$version"
 
     cd $src >/dev/null
-
-    (set -e -x; build 2>&1)
-    [[ "$?" == "0" ]] && INFO_MESG "Successfully compiled $name" || ERR_EXIT $ERR_CODE_EXECUTION "failed to compile $name"
-
+    
+    build
+    
+    ret=$?
     cd - >/dev/null
+
+    return $ret
 
 }
 
@@ -337,10 +344,15 @@ function Main {
 
     for fnc in $EXEC_LIST ; do
         if [[ $(type -t $fnc) == "function" ]] ; then
-            $fnc || {
+            if [[ "$fnc" == "builder" ]] ; then
+                (set -e -x; builder 2>&1)
+            else
+                $fnc
+            fi
+            if [[ $? != 0 ]] ; then
                 ERR_MESG "failed to execute $fnc"
                 exit $ERR_CODE_EXECUTION
-            }
+            fi
         else
             ERR_MESG "$fnc is not a function type"
             exit $ERR_CODE_TYPE
