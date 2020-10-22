@@ -81,7 +81,7 @@ namespace libapp {
             app_list_t cal_dep(libapp::obj* app, bool debug);
             std::vector<std::string> list_files(app_db_t& app_data, bool debug);
 
-            err::obj register_data(app_db_t);
+            err::obj register_data(app_db_t, bool debug);
             //std::vector<std::shared_ptr<rlxpkg::obj>>
             //    calculate_depends(std::shared_ptr<rlxpkg::obj>)
 

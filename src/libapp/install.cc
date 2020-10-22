@@ -5,7 +5,7 @@ using namespace libapp;
 
 err::obj
 ctl::obj::Install(const std::string & app, bool debug)
-{   
+{
     try {
         auto app_ptr = get_app(app, debug);
         if (app_ptr == nullptr) return err::obj(err::file_missing, "failed to get " +app);
@@ -20,7 +20,7 @@ ctl::obj::Install(const std::string & app, bool debug)
                 for(auto a : deps) io::print(" ",a->name());
                 io::print(" ]\n");
             }
-            
+
             for(auto a : deps) {
                 io::process("install dependency ",a->name());
                 auto e = a->Install(config, debug);
@@ -33,7 +33,7 @@ ctl::obj::Install(const std::string & app, bool debug)
             case err::file_missing: 
                 io::error("[FileMissing] ",e.mesg());
                 break;
-            
+
             case err::execution:
                 io::error("[ExecutionError] ", e.mesg());
                 break;
