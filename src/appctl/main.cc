@@ -3,6 +3,37 @@
 
 #define DETAIL(x,z) io::colored_title(color::cyan, (x), (z))
 
+int hash_func(cli::data_t& data)
+{
+    if (data.args.size() == 0) {
+        io::error("input file");
+        return -2;
+    }
+    io::fprint(std::cout, libapp::hash(data.args[0]));
+}
+int sync_func(cli::data_t& data)
+{
+    libapp::ctl::obj appctl(data.value_of("config",CONFIG_FILE));
+    appctl.sync_modules(data.is_flag_set("debug"));
+    return 0;
+}
+
+int download_func(cli::data_t& data)
+{
+    if (data.args.size() < 2)
+    {
+        io::error("need arguments");
+        return 1;
+    }
+    libapp::ctl::obj appctl(data.value_of("config",CONFIG_FILE));
+    auto e = appctl.download_file(data.args[0], data.args[1], true);
+    if (e.status() != 200) {
+        io::error("failed to download file",e.mesg());
+        return e.status();
+    }
+    return 0;
+}
+
 int
 remove_func(cli::data_t& data)
 {
@@ -34,7 +65,6 @@ cal_dep_func(cli::data_t& data)
     } catch(err::obj e) {
         io::error(e.mesg());
     }
-    
 
     return 0;
 }
@@ -206,6 +236,24 @@ int main(int ac, char** av) {
            .desc = "remove app from root directory",
            .usage = "app-name",
            .func = remove_func
+       })
+       .sub(cli::sub_t{
+           .id = "download",
+           .desc = "download file specified",
+           .usage = "<url> <file>",
+           .func = download_func
+       })
+       .sub(cli::sub_t{
+           .id = "sync",
+           .desc = "sync data from modules",
+           .usage = "",
+           .func = sync_func
+       })
+       .sub(cli::sub_t{
+           .id = "gen-hash",
+           .desc = "generate hash sum of input file",
+           .usage = "file",
+           .func = hash_func
        });
 
     try {

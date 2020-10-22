@@ -43,10 +43,12 @@ namespace libapp {
 
             virtual rlx::err::obj Install(conf::obj & config, bool debug) { return err::obj(0x1245, "not implemented");}
             virtual rlx::err::obj Remove(conf::obj& config, bool debug) { return err::obj(0x1245, "not implemented");}
+            virtual rlx::err::obj Sync(conf::obj& config, bool debug) { return err::obj(0x1245, "failed to sync repository");}
 
     };
 
     typedef std::vector<libapp::obj*> app_list_t;
+    std::string hash(const std::string& f);
 
     namespace ctl {
         class obj {
@@ -54,7 +56,7 @@ namespace libapp {
         public:
             bool reinstall, redownload, repack, update, skip_dep, skip_pre, skip_post;
             std::string flags;
-            obj(const std::string& config) 
+            obj(const std::string& config)
             : config(config)
             {
                 load_modules();
@@ -72,12 +74,17 @@ namespace libapp {
             app_db_t is_installed(const std::string& a, bool debug);
             err::obj Remove(const std::string& app, bool debug);
 
+            err::obj sync_modules(bool debug);
+
+            err::obj download_file(const std::string&, const std::string&, bool prgs = false);
+
             app_list_t cal_dep(libapp::obj* app, bool debug);
             std::vector<std::string> list_files(app_db_t& app_data, bool debug);
 
+            err::obj register_data(app_db_t);
             //std::vector<std::shared_ptr<rlxpkg::obj>>
             //    calculate_depends(std::shared_ptr<rlxpkg::obj>)
-            
+
         };
     }
 }

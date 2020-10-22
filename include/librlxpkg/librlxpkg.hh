@@ -15,11 +15,14 @@ namespace librlxpkg {
         public:
             obj(conf::obj);
 
+            ~obj() {}
+
             void load(const std::string&);
 
             std::string type() { return "recipe"; }
             err::obj Install(conf::obj& config, bool debug = false);
             err::obj Remove(conf::obj& config, bool debug = false);
+            err::obj Sync(conf::obj& config, bool debug = false);
 
             std::string get_recipe_path(const std::string&);
 
