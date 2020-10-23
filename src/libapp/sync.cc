@@ -48,7 +48,7 @@ ctl::obj::download_file(const std::string& url, const std::string& file, bool pr
         long respcode;
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &respcode);
         if (resp != CURLE_OK) {
-            return err::obj(respcode, "failed to download file from url " + url);
+            return err::obj(respcode, " failed to download file from url " + url);
         } else {
             return err::obj(respcode);
         }
@@ -66,6 +66,9 @@ ctl::obj::sync_modules(bool debug)
         io::process("checking updates for ",a.first);
         auto s = a.second(config);
         auto e = s->Sync(config, debug);
+        if (e.status() != 0) {
+            io::error("Status Code: ",e.status(), " Message: ", e.mesg());
+        }
         delete s;
     }
     return err::obj(0);
