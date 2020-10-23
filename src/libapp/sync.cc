@@ -3,39 +3,21 @@
 #include <stdlib.h>
 #include <libgen.h>
 #include <curl/curl.h>
-#include <iomanip>
-#include <openssl/md5.h>
 
 using namespace libapp;
 
 std::string
 libapp::hash(const std::string &fname)
 {
-    char buff[BUFSIZ];
-    uint8_t digest[MD5_DIGEST_LENGTH];
+    std::ifstream t(fname);
+    std::string cnt((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
+
+    long long h = 91;
+    for(auto a : cnt)
+        h = (h * 54059) ^ (a * 76963);
     std::stringstream ss;
-    std::string md5string;
-
-    std::ifstream ifs(fname, std::ifstream::binary);
-    MD5_CTX __ctx;
-    MD5_Init(&__ctx);
-
-    while(ifs.good()) {
-        ifs.read(buff, BUFSIZ);
-        MD5_Update(&__ctx, buff, ifs.gcount());
-    }
-    ifs.close();
-
-    int res = MD5_Final(digest, &__ctx);
-
-    if (res == 0)
-        throw err::obj(111);
-
-    ss << std::hex << std::uppercase << std::setfill('0');
-
-    for(uint8_t uc : digest)
-        ss << std::setw(2) << (int)uc;
-
+    ss << h;
     return ss.str();
 }
 
