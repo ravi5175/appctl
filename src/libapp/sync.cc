@@ -49,8 +49,10 @@ ctl::obj::download_file(const std::string& url, const std::string& file, bool pr
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &respcode);
         if (debug) io::info("response code: ",respcode);
         if (resp != CURLE_OK) {
+            curl_easy_cleanup(curl);
             return err::obj(respcode, " failed to download file from url " + url);
         } else {
+            curl_easy_cleanup(curl);
             return err::obj(respcode);
         }
         curl_easy_cleanup(curl);

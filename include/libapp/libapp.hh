@@ -76,7 +76,7 @@ namespace libapp {
 
             err::obj sync_modules(bool debug);
 
-            err::obj download_file(const std::string&, const std::string&, bool prgs = false, bool debug = false);
+            err::obj download_file(const std::string&, const std::string&, bool prgs = false, bool debug = true);
 
             app_list_t cal_dep(libapp::obj* app, bool debug);
             std::vector<std::string> list_files(app_db_t& app_data, bool debug);
