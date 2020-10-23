@@ -29,7 +29,7 @@ size_t write_data(void* ptr, size_t size, size_t nmemb, FILE* fptr)
 }
 
 err::obj
-ctl::obj::download_file(const std::string& url, const std::string& file, bool progress)
+ctl::obj::download_file(const std::string& url, const std::string& file, bool progress, bool debug)
 {
     CURL* curl;
     FILE* fp;
@@ -47,6 +47,7 @@ ctl::obj::download_file(const std::string& url, const std::string& file, bool pr
         fclose(fp);
         long respcode;
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &respcode);
+        if (debug) io::info("response code: ",respcode);
         if (resp != CURLE_OK) {
             return err::obj(respcode, " failed to download file from url " + url);
         } else {
