@@ -15,6 +15,7 @@ ctl::obj::Install(const std::string & app, bool debug)
 
         if (!skip_dep) {
             auto deps = cal_dep(app_ptr, debug);
+            err::obj e;
             if (deps.size() > 0) {
                 io::print("install dependencies [");
                 for(auto a : deps) io::print(" ",a->name());
@@ -23,11 +24,13 @@ ctl::obj::Install(const std::string & app, bool debug)
 
             for(auto a : deps) {
                 io::process("install dependency ",a->name());
-                auto e = a->Install(config, debug);
+                e = a->Install(config, debug);
                 if (e.status() != 0) return e;
             }
+            return e;
+        } else {
+            return app_ptr->Install(config, debug);
         }
-        return app_ptr->Install(config, debug);
     } catch (err::obj e) {
         switch (e.status()) {
             case err::file_missing: 

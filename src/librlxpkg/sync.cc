@@ -22,7 +22,7 @@ obj::Sync(conf::obj& conf, bool debug)
                 io::info("syncing ",b.first);
                 auto data_file = io::sprint(b.second,"/rcp.meta");
                 if (debug) io::info("downloading data file ",data_file);
-                err::obj e = appctl.download_file(data_file, "/tmp/.appctl.meta");
+                err::obj e = appctl.download_file(data_file, "/tmp/.appctl.meta", true);
                 if (e.status() != 200) {
                     io::error("failed to sync ",b.first," ",e.mesg());
                     continue;
