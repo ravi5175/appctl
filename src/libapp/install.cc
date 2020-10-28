@@ -15,7 +15,7 @@ ctl::obj::Install(const std::string & app, bool debug)
 
         if (!skip_dep) {
             auto deps = cal_dep(app_ptr, debug);
-            err::obj e;
+            err::obj e(0);
             if (deps.size() > 0) {
                 io::print("install dependencies [");
                 for(auto a : deps) io::print(" ",a->name());
