@@ -181,7 +181,7 @@ Distributed under the GPL3 License. See `license` for more information.
 
 <!-- CONTACT -->
 ## Contact
-Manjeet Singh - [@your_twitter](https://twitter.com/your_username) - email@example.com
+Manjeet Singh - [@releaxos](https://twitter.com/releaxos) - itsmanjeet@releax.in
 
 [Join](https://discord.gg/TXTxDTYcdg) our discord server for any query
 
