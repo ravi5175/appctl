@@ -149,13 +149,15 @@ function Main {
     TEMP_DIR="$ROOT_DIR/tmp/app/"
     LOCK_FILE="$TEMP_DIR/db.lock"
     DATA_DIR=${DATA_DIR:-"$ROOT_DIR/var/lib/app/index/"}
+
+    source ${SPECS:-"/usr/lib/appctl/specs.sh"}
+
     
     mkdir -p $TEMP_DIR
 
     [[ ! -d "$DATA_DIR" ]] && ERR_EXIT $ERR_CODE_NOT_EXIST "appctl database directory not exist $DATA_DIR"
     [[ "$(id -u)" = "0" ]] || ERR_EXIT $ERR_CODE_PERMISSION "$(basename $0): need super user access"
     [[ -f "$LOCK_FILE"  ]] && ERR_EXIT $ERR_CODE_EXECUTION "appctl database is locked by '$(cat $LOCK_FILE)'"
-
     BASENAME=$(basename $PKGNAME)
     [[ ! -e "$PKGNAME" ]] && ERR_EXIT $ERR_CODE_NOT_EXIST "$PKGNAME not exist"
 
@@ -169,7 +171,7 @@ function Main {
         iver=$(grep ^version: $DATA_DIR/$name/info | awk -F ': ' '{print $2}')
         irel=$(grep ^release: $DATA_DIR/$name/info | awk -F ': ' '{print $2}')
         INSTLD=1
-    fi
+    fi=
 
     if [[ "$INSTLD" ]] && [[ "$UPDATE" != "1" ]] && [[ "$REINSTALL" != "1" ]] ; then
         echo "$name is already installed"
