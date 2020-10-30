@@ -72,7 +72,7 @@
 ## About The Project
 
 <!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
-appctl is a modern and extensible project manager and its can support any type of package format and mode of operation (like installation, compilation, upgradation) can be added in forms of modules.
+appctl is a modern and extensible project manager and it is designed to support any type of package format and mode of operation (like installation, compilation, upgradation) can be added in forms of modules.
 
 **librlxpkg** - is a avaliable module to provide support for rlxos recipe files. Its the complete implemenation and can install, compile, search and remove any type
 
