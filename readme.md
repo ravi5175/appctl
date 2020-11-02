@@ -132,20 +132,20 @@ appctl use common and standard command line arguments for performing operations,
 ```
 
 ```bash
-    appctl-0.1.0 : rlxos package manager tool
+    ### appctl-0.1.0 : rlxos package manager tool
 
     Usage: appctl [options]
 
     Options:
-        install     [app-name] 		        install specified application from app-id
-        info        [app-name] 		        print information of <app>
-        list-files  [app-name] 		        list content of install <app>
-        cal-dep     [app-name] 		        calculate required dependencies of <app>
+        install       [app-name] 		        install specified application from app-id
+        info          [app-name] 		        print information of <app>
+        list-files    [app-name] 		        list content of install <app>
+        cal-dep       [app-name] 		        calculate required dependencies of <app>
         verify-config [section.variable]    print configuration file
-        remove      [app-name] 		        remove app from root directory
-        download    [<url> <file>] 		    download file specified
-        sync        [] 		                sync data from modules
-        gen-hash    [file] 		            generate hash sum of input file
+        remove        [app-name] 		        remove app from root directory
+        download      [<url> <file>] 		    download file specified
+        sync          [] 		                sync data from modules
+        gen-hash      [file] 		            generate hash sum of input file
 ```
 
 _For more examples, please refer to the [Documentation](https://github.com/rlxos/appctl/docs/appctl.html)_
