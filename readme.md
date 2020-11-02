@@ -132,7 +132,7 @@ appctl use common and standard command line arguments for performing operations,
 ```
 
 ```bash
-    ### appctl-0.1.0 : rlxos package manager tool
+    appctl-0.1.0 : rlxos package manager tool
 
     Usage: appctl [options]
 
